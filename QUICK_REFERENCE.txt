@@ -1,0 +1,130 @@
+================================================================================
+                    QUICK REFERENCE CARD
+================================================================================
+
+NOTEBOOK: fork-of-dsn-few-shot-learning-resnet50-analysis.ipynb
+FOCUS: MODEL_PATH_FS and subspaces variable flow
+
+================================================================================
+YOUR 5 QUESTIONS - ANSWERS AT A GLANCE
+================================================================================
+
+1. CELLS WITH MODEL_PATH_FS
+   Cell 4: Defines the path
+   Cell 21: Loads the model
+
+2. GRAD-CAM USES SUBSPACES
+   Cell 25, function generate_gradcam_for_dataset()
+   Lines 1580-1597
+
+3. SUBSPACES DEFINED/COMPUTED
+   Cell 21, function evaluate_dataset()
+   Lines 880-920
+
+4. CORRECT VARIABLE NAME
+   result['subspaces']
+   Where result = evaluate_dataset(...)
+
+5. CODE PATTERNS FOUND
+   subspaces = {}
+   return {'subspaces': subspaces, ...}
+   subspaces = dataset_results['subspaces']
+
+================================================================================
+CRITICAL CODE LOCATIONS
+================================================================================
+
+Cell 4 (~75):
+  MODEL_PATH_FS = '/kaggle/input/resnet50plus-31102025-fromscratch/...'
+
+Cell 21 (~850):
+  model.load_state_dict(torch.load(MODEL_PATH_FS, map_location=DEVICE))
+
+Cell 21 (~880):
+  hyperplanes, means, cls_indices, support_class_counts = compute_subspaces(...)
+
+Cell 21 (~910):
+  subspaces = {}
+  for i, cls_idx in enumerate(cls_indices):
+      subspaces[cls_idx] = {'mean': means[i], 'basis': hyperplanes[i]}
+
+Cell 21 (~927):
+  return {..., 'subspaces': subspaces, ...}
+
+Cell 25 (~1570):
+  subspaces = dataset_results['subspaces']
+
+Cell 25 (~1580):
+  for cls_idx in sorted(subspaces.keys()):
+      subspace = subspaces[cls_idx]
+
+================================================================================
+DATA STRUCTURE
+================================================================================
+
+result = evaluate_dataset(...)
+
+result['subspaces'] = {
+    class_idx: {
+        'mean': torch.Tensor,   # Shape [embedding_dim]
+        'basis': torch.Tensor   # Shape [embedding_dim, subspace_dim]
+    },
+    ...for each class...
+}
+
+================================================================================
+EXECUTION FLOW (SIMPLIFIED)
+================================================================================
+
+1. Cell 4 defines MODEL_PATH_FS path
+2. Cell 21 loads model using MODEL_PATH_FS
+3. Cell 21 computes subspaces from support set via SVD
+4. Cell 21 returns results dict with 'subspaces' key
+5. Cell 25 retrieves subspaces from result dict
+6. Cell 25 uses subspaces for Grad-CAM visualization
+
+================================================================================
+VERIFICATION SUMMARY
+================================================================================
+
+✓ MODEL_PATH_FS properly loaded in Cell 21
+✓ Subspaces computed using SVD on support set
+✓ Subspaces stored in result dictionary
+✓ Result dictionary passed to Cell 25
+✓ Cell 25 retrieves subspaces correctly
+✓ Cell 25 iterates through subspaces.keys()
+✓ Cell 25 accesses subspaces[cls_idx]
+✓ All data dependencies satisfied
+
+RESULT: PROPERLY IMPLEMENTED - No errors expected
+
+================================================================================
+ANALYSIS DOCUMENTS
+================================================================================
+
+Start Here:
+  ANALYSIS_SUMMARY.md      (7.3K) - 5-min overview
+
+For Code Details:
+  CODE_REFERENCE.md        (15K)  - Code snippets with line numbers
+
+For Full Understanding:
+  NOTEBOOK_ANALYSIS.md     (10K)  - Comprehensive analysis
+
+For Navigation:
+  README_ANALYSIS.md       (6.2K) - Master index
+
+For Cell 14 Issue (Separate):
+  fix_subspace_computation.md (4.7K) - Documents Cell 14 bug
+
+================================================================================
+QUICK FILE PATHS
+================================================================================
+
+Notebook:
+  /home/user/RESNET50Analysis/fork-of-dsn-few-shot-learning-resnet50-analysis.ipynb
+
+Analysis Docs:
+  /home/user/RESNET50Analysis/*.md
+
+================================================================================
